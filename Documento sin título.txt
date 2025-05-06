@@ -1,0 +1,254 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>School Community</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="sidebar">
+    <h2>SCHOOL</h2>
+    <a href="#">Home</a>
+    <a href="#">Explore</a>
+    <a href="#">Events</a>
+    <a href="#">Community</a>
+    <a href="#">More</a>
+  </div>
+
+
+  <div class="main-content">
+    <div class="topbar">
+      <input type="text" placeholder="Search">
+    </div>
+
+
+    <div class="post-box">
+      <textarea placeholder="What's happening?" id="postText"></textarea>
+      <div class="actions">
+        <input type="file" id="mediaInput" accept="image/*,video/*">
+        <button onclick="submitPost()">Post</button>
+      </div>
+    </div>
+
+
+    <div id="feed">
+      <!-- Posts appear here -->
+    </div>
+  </div>
+
+
+  <script src="script.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+Css
+
+
+body {
+  margin: 0;
+  font-family: 'Georgia', serif;
+  background: #fdf6e3;
+  color: #2e3b2e;
+  display: flex;
+}
+
+
+.sidebar {
+  width: 200px;
+  background: #e0dbc5;
+  padding: 20px;
+  height: 100vh;
+  position: fixed;
+  border-right: 1px solid #ccc;
+}
+
+
+.sidebar h2 {
+  font-size: 22px;
+  color: #1d3b2a;
+}
+
+
+.sidebar a {
+  display: block;
+  margin: 15px 0;
+  color: #1d3b2a;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+
+.main-content {
+  margin-left: 200px;
+  padding: 20px;
+  flex: 1;
+}
+
+
+.topbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+
+.topbar input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  background: #f1eadc;
+  border-radius: 4px;
+}
+
+
+.post-box {
+  background: #fff9ec;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+
+.post-box textarea {
+  width: 100%;
+  height: 80px;
+  font-family: inherit;
+  border: 1px solid #ccc;
+  background: #fdfdf7;
+  padding: 8px;
+  resize: none;
+}
+
+
+.actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+button {
+  padding: 8px 20px;
+  background: #3a4f41;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+
+button:hover {
+  background: #2e3b2e;
+}
+
+
+#feed .post {
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+}
+
+
+.post img, .post video {
+  max-width: 100%;
+  margin-top: 10px;
+  border-radius: 4px;
+}
+
+
+
+
+
+
+
+
+
+
+Ja
+
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  cargarPosts();
+});
+
+
+function submitPost() {
+  const text = document.getElementById('postText').value;
+  const media = document.getElementById('mediaInput').files[0];
+
+
+  if (!text && !media) return;
+
+
+  const post = { text, media: null, type: null };
+
+
+  if (media) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      post.media = e.target.result;
+      post.type = media.type;
+      guardarYMostrarPost(post);
+    };
+    reader.readAsDataURL(media);
+  } else {
+    guardarYMostrarPost(post);
+  }
+
+
+  document.getElementById('postText').value = '';
+  document.getElementById('mediaInput').value = '';
+}
+
+
+function guardarYMostrarPost(post) {
+  const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+  posts.unshift(post);
+  localStorage.setItem('posts', JSON.stringify(posts));
+  mostrarPost(post);
+}
+
+
+function cargarPosts() {
+  const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+  posts.forEach(post => mostrarPost(post));
+}
+
+
+function mostrarPost(post) {
+  const feed = document.getElementById('feed');
+  const div = document.createElement('div');
+  div.className = 'post';
+  div.innerHTML = `<strong>Nombre @usuario</strong><p>${post.text}</p>`;
+
+
+  if (post.media) {
+    if (post.type.startsWith('image')) {
+      div.innerHTML += `<img src="${post.media}" alt="Imagen">`;
+    } else if (post.type.startsWith('video')) {
+      div.innerHTML += `<video controls><source src="${post.media}"></video>`;
+    }
+  }
+
+
+  feed.prepend(div);
+}
